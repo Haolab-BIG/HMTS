@@ -20,13 +20,13 @@ do
 	#fastqc ./rawData/${i}_R1_001.fastq.gz -o ./FastQC
 	gzip -d -c ${rawdir}/${i}_R1_001.fastq.gz > ${decompressdir}/${i}_R1_001.fastq
 	echo "cut 5' adapter AAAATCTCTAGCA"
-  cutadapt -g AAAATCTCTAGCA  -e 0.1 -m 20  -o ${trimdir}/${i}_R1.filter1.fastq ${decompressdir}/${i}_R1_001.fastq   ## 几乎没有这个adapter
-  fastqc ${trimdir}/${i}_R1.filter1.fastq -o ${trimdir}
+	cutadapt -g AAAATCTCTAGCA  -e 0.1 -m 20  -o ${trimdir}/${i}_R1.filter1.fastq ${decompressdir}/${i}_R1_001.fastq   ## 几乎没有这个adapter
+	fastqc ${trimdir}/${i}_R1.filter1.fastq -o ${trimdir}
 	echo "cut 3' adapter and do quality control"
-  cutadapt -g A{10} -g G{10} -a A{10} -a G{10} -a file:/mnt/haoyj/Project/WubinMa_translocation/Translocation_20240311/Files/illumina_adapter.fa -j 10 --times 20 -e 0.1 -m 20 -o ${trimdir}/${i}_R1.filter2.fastq ${trimdir}/${i}_R1.filter1.fastq    ## 
-  fastqc ${trimdir}/${i}_R1.filter2.fastq -o ${trimdir}
+	cutadapt -g A{10} -g G{10} -a A{10} -a G{10} -a file:/mnt/haoyj/Project/WubinMa_translocation/Translocation_20240311/Files/illumina_adapter.fa -j 10 --times 20 -e 0.1 -m 20 -o ${trimdir}/${i}_R1.filter2.fastq ${trimdir}/${i}_R1.filter1.fastq    ## 
+	fastqc ${trimdir}/${i}_R1.filter2.fastq -o ${trimdir}
 	java -jar ${trimmomatic} SE -phred33 -threads 10 ${trimdir}/${i}_R1.filter2.fastq ${trimdir}/${i}_R1.filter2.5.fastq CROP:150 SLIDINGWINDOW:4:20 MINLEN:20
-  fastqc ${trimdir}/${i}_R1.filter2.5.fastq -o ${trimdir}
+	fastqc ${trimdir}/${i}_R1.filter2.5.fastq -o ${trimdir}
 	echo "cut bait sequences in 3'end"
 	cutadapt -a file:/mnt/haoyj/Project/WubinMa_translocation/Translocation_20240311/Files/Read1_bait_adapter.txt -j 10 -e 0.1 -m 20 -O 6 -o ${trimdir}/${i}_R1.filter2new.fastq ${trimdir}/${i}_R1.filter2.5.fastq
 	fastqc ${trimdir}/${i}_R1.filter2new.fastq -o ${trimdir}
@@ -47,7 +47,7 @@ for i in wm-DOX1_S4_L001 wm-DOX2_S5_L001;
 do 
 	gzip -d -c ${rawdir}/${i}_R2_001.fastq.gz > ${decompressdir}/${i}_R2_001.fastq
 	cutadapt --trimmed-only -g ^GATAGGGATAA -e 0.2 -m 20  -o ${trimdir}/${i}_R2.filter.fastq ${decompressdir}/${i}_R2_001.fastq
-  fastqc ${trimdir}/${i}_R2.filter.fastq -o ${trimdir}
+	fastqc ${trimdir}/${i}_R2.filter.fastq -o ${trimdir}
 	#cut 5' adapter CCGGTG
 	cutadapt -g CCGGTG -n 6 -e 0.1 -m 20 -o ${trimdir}/${i}_R2.filter1.fastq ${trimdir}/${i}_R2.filter.fastq
 	fastqc ${trimdir}/${i}_R2.filter1.fastq -o ${trimdir}
@@ -60,7 +60,7 @@ do
 	fastqc ${trimdir}/${i}_R2.filter2.5.fastq -o ${trimdir}
 	echo "cut bait sequences in 3'end"
 	cutadapt -a file:/mnt/haoyj/Project/WubinMa_translocation/Translocation_20240311/Files/Read2_bait_adapter.txt -j 10 -e 0.1 -m 20 -O 6 -o ${trimdir}/${i}_R2.filter2new.fastq ${trimdir}/${i}_R2.filter2.5.fastq
-  fastqc ${trimdir}/${i}_R2.filter2new.fastq -o ${trimdir}
+	fastqc ${trimdir}/${i}_R2.filter2new.fastq -o ${trimdir}
 done
 
 ## step4: find translocation and bait for each read
@@ -102,9 +102,9 @@ for fileName in wm-DOX1_S4_L001 wm-DOX2_S5_L001;do
  	samtools view ${starres}/${fileName}_read1_unique.bam |cut -f 1,6,10,17|awk 'BEGIN{FS=OFS="\t"}{split($4,a,":");split(a[3],b,/[a-zA-Z]+/);sum=0;for(i=1;i<=length(b);i++){sum=sum+b[i]};if(sum/length($3)>-1){print $2,length($3),sum,sum/length($3)}}' | paste ${starres}/${fileName}_read1_unique.bed - |awk 'BEGIN{FS=OFS="\t"}{if($11>=0.66){print}}'>  ${starres}/${fileName}_read1_unique.percent.bed
  	samtools view ${starres}/${fileName}_read2_unique.bam |cut -f 1,6,10,17|awk 'BEGIN{FS=OFS="\t"}{split($4,a,":");split(a[3],b,/[a-zA-Z]+/);sum=0;for(i=1;i<=length(b);i++){sum=sum+b[i]};if(sum/length($3)>-1){print $2,length($3),sum,sum/length($3)}}' | paste ${starres}/${fileName}_read2_unique.bed - |awk 'BEGIN{FS=OFS="\t"}{if($11>=0.66){print}}'>  ${starres}/${fileName}_read2_unique.percent.bed
  	# get all chimeric reads' bed
-  samtools view -h ${starres}/${fileName}_read1Aligned.sortedByCoord.out.bam | grep -E '(^@.*|ch:A:1)' | samtools view -Sb - > ${starres}/${fileName}_read1.chimOut.bam
+	samtools view -h ${starres}/${fileName}_read1Aligned.sortedByCoord.out.bam | grep -E '(^@.*|ch:A:1)' | samtools view -Sb - > ${starres}/${fileName}_read1.chimOut.bam
 	bedtools bamtobed -i ${starres}/${fileName}_read1.chimOut.bam -tag HI -cigar > ${starres}/${fileName}_read1.chimOut.bed
-  samtools view -h ${starres}/${fileName}_read2Aligned.sortedByCoord.out.bam | grep -E '(^@.*|ch:A:1)' | samtools view -Sb - > ${starres}/${fileName}_read2.chimOut.bam
+	samtools view -h ${starres}/${fileName}_read2Aligned.sortedByCoord.out.bam | grep -E '(^@.*|ch:A:1)' | samtools view -Sb - > ${starres}/${fileName}_read2.chimOut.bam
 	bedtools bamtobed -i ${starres}/${fileName}_read2.chimOut.bam -tag HI -cigar > ${starres}/${fileName}_read2.chimOut.bed
  	# 1) if chimeric score ($18) larger than non-chimeric score ($17), then we chose chimeric 2) chimeric mapping Bps($18) should larger then 0.66 percent of totoal reads length 
  	grep '^chr' ${starres}/${fileName}2_read1Chimeric.out.junction|awk 'BEGIN{FS=OFS="\t"}{if(NR >1 && $17<=$18 && $18/$16>=0.66){print}}' > ${starres}/${fileName}2_read1Chimeric.out.junction.filter1
@@ -130,8 +130,8 @@ for fileName in wm-DOX1_S4_L001 wm-DOX2_S5_L001;do
 	echo "deal with R1J and R2J"
 	#Only keep R1J and R2J sharing the same junction sites(+/-10bp)
 	awk 'BEGIN{FS=OFS="\t"}{if($1==$24 && $3!=$26 && $4==$21 && $6!=$23 && ((($25-$2)>=0 && ($25-$2)<=10) || (($2-$25)>=0 && ($2-$25)<=10)) && ((($22-$5)>=0 && ($22-$5)<=10) || (($5-$22)>=0 && ($5-$22)<=10))){print}}' ${starres}/${fileName}_R1J_R2J > ${starres}/${fileName}_R1J_R2J_filter
-#obtain the first loci of R1 and R2.
-#the file format: R1J,R2J,R1_part1,R1_part2,R2_part1,R2_part2
+	#obtain the first loci of R1 and R2.
+	#the file format: R1J,R2J,R1_part1,R1_part2,R2_part1,R2_part2
 	awk 'BEGIN{FS=OFS="\t"}NR==FNR{str1=$1"\t"$2"\t"$3"\t"$6"\t"$8"\t"$9"\t"$10"\t"$13;str2=$8"\t"$9"\t"$10"\t"$13"\t"$1"\t"$2"\t"$3"\t"$6;if($6=="+" && $13=="+"){A[$1$3+1$4$8$9]=str1;A[$8$10+1$4$1$2]=str2}else if($6=="+" && $13=="-"){A[$1$3+1$4$8$10+1]=str1;A[$8$9$4$1$2]=str2}else if($6=="-" && $13=="+"){A[$1$2$4$8$9]=str1;A[$8$10+1$4$1$3+1]=str2}else if($6=="-" && $13=="-"){A[$1$2$4$8$10+1]=str1;A[$8$9$4$1$3+1]=str2}}NR>FNR{if(A[$1$2$10$4$5]!=""){print $0,A[$1$2$10$4$5]}}' ${starres}/${fileName}_read1.chimOut_pair.bed ${starres}/${fileName}_R1J_R2J_filter | awk 'BEGIN{FS=OFS="\t"}NR==FNR{str1=$1"\t"$2"\t"$3"\t"$6"\t"$8"\t"$9"\t"$10"\t"$13;str2=$8"\t"$9"\t"$10"\t"$13"\t"$1"\t"$2"\t"$3"\t"$6;if($6=="+" && $13=="+"){A[$1$3+1$4$8$9]=str1;A[$8$10+1$4$1$2]=str2}else if($6=="+" && $13=="-"){A[$1$3+1$4$8$10+1]=str1;A[$8$9$4$1$2]=str2}else if($6=="-" && $13=="+"){A[$1$2$4$8$9]=str1;A[$8$10+1$4$1$3+1]=str2}else if($6=="-" && $13=="-"){A[$1$2$4$8$10+1]=str1;A[$8$9$4$1$3+1]=str2}}NR>FNR{if(A[$21$22$30$24$25]!=""){print $0,A[$21$22$30$24$25]}}' ${starres}/${fileName}_read2.chimOut_pair.bed - > ${starres}/${fileName}_R1J_R2J_filter_addPair
 	####obtain each read the best chimeric pair score
 	awk 'BEGIN{FS=OFS="\t"}{print ($18/$16)+($38/$36),$0}' ${starres}/${fileName}_R1J_R2J_filter_addPair >temp.txt
