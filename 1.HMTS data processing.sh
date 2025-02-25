@@ -188,7 +188,7 @@ done
 
 ## step5: combine translocation and bait and remove duplication
 
-R CMD BATCH ./2.combine.r
+R CMD BATCH ./1.combine.r
 
 
 
