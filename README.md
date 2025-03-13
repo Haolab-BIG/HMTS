@@ -5,11 +5,13 @@ This is the pipeline of downstream analysis for HMTS data.
 ### i. Library construction
 Here stands an schematic diagram illustrating HMTS.
 
-![image](https://github.com/user-attachments/files/19224761/HTMS.library.pdf)
+![图片](https://github.com/user-attachments/assets/6bbd7a57-6b77-4713-919f-7d13d844017d)
+
 
 ### ii. Workflow
 
-![image](https://github.com/user-attachments/files/19224833/HTMS.preprocessing.pdf)
+![图片](https://github.com/user-attachments/assets/6cb0caa4-972b-4771-8d36-51689f343112)
+
 
 As illustrated in the figure, \
 (i) yellow circles represent the steps where commands need to be entered; \
