@@ -28,45 +28,45 @@ Here we obtained all bait and translocation pairs.
 
 ### i. Raw Data Quality Check and Trimming
 
-Triming R1 data
+Trimming R1 data
 ```
-rawdir=/mnt1/2.NAS2024/share/data/WM_022024
-decompressdir=/mnt1/2.NAS2024/wutan/4.translocation/Degron/5.DOX/2.trim/decompress
-trimmomatic=/mnt/share/software/Trimmomatic/Trimmomatic-0.39/trimmomatic-0.39.jar
-trimdir=/mnt1/2.NAS2024/wutan/4.translocation/Degron/5.DOX/2.trim/together
-Read1_bait_adapter=/mnt/haoyj/Project/WubinMa_translocation/Translocation_20240311/Files/Read1_bait_adapter.txt
-for i in wm-DOX1_S4_L001 wm-DOX2_S5_L001;
+rawdir=XXX         ## Enter the full path of the directory containing the raw fastq.gz data
+decompressdir=XXX  ## Enter the full path of the directory to store the decompressed raw fastq.gz data
+trimmomatic=XXX    ## Enter the full path of the trimmomatic.jar
+trimdir=XXX        ## Enter the full path of the directory to store the trimmed fastq.gz data
+Read1_bait_adapter=./Read1_bait_adapter.txt
+for i in samplename1 samplename2;   ## Replace with the prefix of the raw fastq.gz data
 do 
 	fastqc ${rawdir}/${i}_R1_001.fastq.gz -o ${trimdir}
 	gzip -d -c ${rawdir}/${i}_R1_001.fastq.gz > ${decompressdir}/${i}_R1_001.fastq
 	echo "cut 5' adapter AAAATCTCTAGCA"
-  cutadapt -g AAAATCTCTAGCA -e 0.1 -m 20 -o ${trimdir}/${i}_R1.filter1.fastq ${decompressdir}/${i}_R1_001.fastq
-  fastqc ${trimdir}/${i}_R1.filter1.fastq -o ${trimdir}
+	cutadapt -g AAAATCTCTAGCA -e 0.1 -m 20 -o ${trimdir}/${i}_R1.filter1.fastq ${decompressdir}/${i}_R1_001.fastq
+	fastqc ${trimdir}/${i}_R1.filter1.fastq -o ${trimdir}
 	echo "cut 3' adapter and do quality control"
-  cutadapt -g A{10} -g G{10} -a A{10} -a G{10} -a file:/mnt/haoyj/Project/WubinMa_translocation/Translocation_20240311/Files/illumina_adapter.fa -j 10 --times 20 -e 0.1 -m 20 -o ${trimdir}/${i}_R1.filter2.fastq ${trimdir}/${i}_R1.filter1.fastq    ## 
-  fastqc ${trimdir}/${i}_R1.filter2.fastq -o ${trimdir}
+	cutadapt -g A{10} -g G{10} -a A{10} -a G{10} -a file:/mnt/haoyj/Project/WubinMa_translocation/Translocation_20240311/Files/illumina_adapter.fa -j 10 --times 20 -e 0.1 -m 20 -o ${trimdir}/${i}_R1.filter2.fastq ${trimdir}/${i}_R1.filter1.fastq 
+	fastqc ${trimdir}/${i}_R1.filter2.fastq -o ${trimdir}
 	java -jar ${trimmomatic} SE -phred33 -threads 10 ${trimdir}/${i}_R1.filter2.fastq ${trimdir}/${i}_R1.filter2.5.fastq CROP:150 SLIDINGWINDOW:4:20 MINLEN:20
-  fastqc ${trimdir}/${i}_R1.filter2.5.fastq -o ${trimdir}
+	fastqc ${trimdir}/${i}_R1.filter2.5.fastq -o ${trimdir}
 	echo "cut bait sequences in 3'end"
 	cutadapt -a file:${Read1_bait_adapter} -j 10 -e 0.1 -m 20 -O 6 -o ${trimdir}/${i}_R1.filter2new.fastq ${trimdir}/${i}_R1.filter2.5.fastq
 	fastqc ${trimdir}/${i}_R1.filter2new.fastq -o ${trimdir}
 done
 ```
 
-Triming R2 data
+Trimming R2 data
 ```
-rawdir=/mnt1/2.NAS2024/share/data/WM_022024
-decompressdir=/mnt1/2.NAS2024/wutan/4.translocation/Degron/5.DOX/2.trim/decompress
-trimmomatic=/mnt/share/software/Trimmomatic/Trimmomatic-0.39/trimmomatic-0.39.jar
-trimdir=/mnt1/2.NAS2024/wutan/4.translocation/Degron/5.DOX/2.trim/together
-Read2_bait_adapter=/mnt/haoyj/Project/WubinMa_translocation/Translocation_20240311/Files/Read2_bait_adapter.txt
-for i in wm-DOX1_S4_L001 wm-DOX2_S5_L001;
+rawdir=XXX         ## Enter the full path of the directory containing the raw fastq.gz data
+decompressdir=XXX  ## Enter the full path of the directory to store the decompressed raw fastq.gz data
+trimmomatic=XXX    ## Enter the full path of the trimmomatic.jar
+trimdir=XXX        ## Enter the full path of the directory to store the trimmed fastq.gz data
+Read2_bait_adapter=./Read2_bait_adapter.txt
+for i in samplename1 samplename2;   ## Replace with the prefix of the raw fastq.gz data
 do
-  fastqc ${rawdir}/${i}_R2_001.fastq.gz -o ${trimdir}
+	fastqc ${rawdir}/${i}_R2_001.fastq.gz -o ${trimdir}
 	gzip -d -c ${rawdir}/${i}_R2_001.fastq.gz > ${decompressdir}/${i}_R2_001.fastq
+	echo "cut 5' adapter"
 	cutadapt --trimmed-only -g ^GATAGGGATAA -e 0.2 -m 20  -o ${trimdir}/${i}_R2.filter.fastq ${decompressdir}/${i}_R2_001.fastq
-  fastqc ${trimdir}/${i}_R2.filter.fastq -o ${trimdir}
-	#cut 5' adapter CCGGTG
+	fastqc ${trimdir}/${i}_R2.filter.fastq -o ${trimdir}
 	cutadapt -g CCGGTG -n 6 -e 0.1 -m 20 -o ${trimdir}/${i}_R2.filter1.fastq ${trimdir}/${i}_R2.filter.fastq
 	fastqc ${trimdir}/${i}_R2.filter1.fastq -o ${trimdir}
 	cutadapt -g ACTCGATCTC -n 6 -e 0.1 -m 20 -o ${trimdir}/${i}_R2.filter1.5.fastq ${trimdir}/${i}_R2.filter1.fastq
@@ -78,7 +78,7 @@ do
 	fastqc ${trimdir}/${i}_R2.filter2.5.fastq -o ${trimdir}
 	echo "cut bait sequences in 3'end"
 	cutadapt -a file:${Read2_bait_adapter} -j 10 -e 0.1 -m 20 -O 6 -o ${trimdir}/${i}_R2.filter2new.fastq ${trimdir}/${i}_R2.filter2.5.fastq
-  fastqc ${trimdir}/${i}_R2.filter2new.fastq -o ${trimdir}
+	fastqc ${trimdir}/${i}_R2.filter2new.fastq -o ${trimdir}
 done
 ```
 
@@ -86,14 +86,14 @@ done
 
 ```
 ulimit -n 65535
-trimdir=/mnt1/2.NAS2024/wutan/4.translocation/Mi_Seq_PE300/3.trim2
-refstargenome=/mnt1/2.NAS2024/wutan/4.translocation/Mi_Seq_PE300/mixgenome/IndexCombineHML149
-starres=/mnt1/2.NAS2024/wutan/4.translocation/Mi_Seq_PE300/mixgenome/star2
+trimdir=XXX         ## Enter the full path of the directory containing the trimmed fastq.gz data
+refstargenome=XXX   ## Enter the full path of the STAR index
+starres=XXX         ## Enter the full path of the directory to store the result from STAR
 cd ${starres}
 
-for fileName in wm_mix_1_S2_L001 wm_mix_2_S3_L001;do
+for fileName in samplename1 samplename2;do   ## Replace with the prefix of the trimmed fastq.gz data
 	echo ${fileName}
-	#only keep reads in both pair
+	echo "only keep reads in both pair"
 	grep '^@' ${trimdir}/${fileName}_R1.filter2new.fastq > ${fileName}_R1.name
 	grep '^@' ${trimdir}/${fileName}_R2.filter2new.fastq > ${fileName}_R2.name
 	cat ${fileName}_R1.name ${fileName}_R2.name |sed 's/ /\t/g'|cut -f 1|sort|uniq -c|sed 's/^[ \t]*//g'|sed 's/ /\t/g'|awk 'BEGIN{FS=OFS="\t"}{if($1==2){print}}' > ${fileName}_overlap.name
@@ -122,9 +122,9 @@ for fileName in wm_mix_1_S2_L001 wm_mix_2_S3_L001;do
  	samtools view ${starres}/${fileName}_read1_unique.bam |cut -f 1,6,10,17|awk 'BEGIN{FS=OFS="\t"}{split($4,a,":");split(a[3],b,/[a-zA-Z]+/);sum=0;for(i=1;i<=length(b);i++){sum=sum+b[i]};if(sum/length($3)>-1){print $2,length($3),sum,sum/length($3)}}' | paste ${starres}/${fileName}_read1_unique.bed - |awk 'BEGIN{FS=OFS="\t"}{if($11>=0.66){print}}'>  ${starres}/${fileName}_read1_unique.percent.bed
  	samtools view ${starres}/${fileName}_read2_unique.bam |cut -f 1,6,10,17|awk 'BEGIN{FS=OFS="\t"}{split($4,a,":");split(a[3],b,/[a-zA-Z]+/);sum=0;for(i=1;i<=length(b);i++){sum=sum+b[i]};if(sum/length($3)>-1){print $2,length($3),sum,sum/length($3)}}' | paste ${starres}/${fileName}_read2_unique.bed - |awk 'BEGIN{FS=OFS="\t"}{if($11>=0.66){print}}'>  ${starres}/${fileName}_read2_unique.percent.bed
  	# get all chimeric reads' bed
-  samtools view -h ${starres}/${fileName}_read1Aligned.sortedByCoord.out.bam | grep -E '(^@.*|ch:A:1)' | samtools view -Sb - > ${starres}/${fileName}_read1.chimOut.bam
+	samtools view -h ${starres}/${fileName}_read1Aligned.sortedByCoord.out.bam | grep -E '(^@.*|ch:A:1)' | samtools view -Sb - > ${starres}/${fileName}_read1.chimOut.bam
 	bedtools bamtobed -i ${starres}/${fileName}_read1.chimOut.bam -tag HI -cigar > ${starres}/${fileName}_read1.chimOut.bed
-  samtools view -h ${starres}/${fileName}_read2Aligned.sortedByCoord.out.bam | grep -E '(^@.*|ch:A:1)' | samtools view -Sb - > ${starres}/${fileName}_read2.chimOut.bam
+	samtools view -h ${starres}/${fileName}_read2Aligned.sortedByCoord.out.bam | grep -E '(^@.*|ch:A:1)' | samtools view -Sb - > ${starres}/${fileName}_read2.chimOut.bam
 	bedtools bamtobed -i ${starres}/${fileName}_read2.chimOut.bam -tag HI -cigar > ${starres}/${fileName}_read2.chimOut.bed
  	# 1) if chimeric score ($18) larger than non-chimeric score ($17), then we chose chimeric 2) chimeric mapping Bps($18) should larger then 0.66 percent of totoal reads length 
  	grep '^chr' ${starres}/${fileName}2_read1Chimeric.out.junction|awk 'BEGIN{FS=OFS="\t"}{if(NR >1 && $17<=$18 && $18/$16>=0.66){print}}' > ${starres}/${fileName}2_read1Chimeric.out.junction.filter1
