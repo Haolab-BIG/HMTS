@@ -150,8 +150,8 @@ for fileName in samplename1 samplename2;do   ## Replace with the prefix of the t
 	echo "deal with R1J and R2J"
 	#Only keep R1J and R2J sharing the same junction sites(+/-10bp)
 	awk 'BEGIN{FS=OFS="\t"}{if($1==$24 && $3!=$26 && $4==$21 && $6!=$23 && ((($25-$2)>=0 && ($25-$2)<=10) || (($2-$25)>=0 && ($2-$25)<=10)) && ((($22-$5)>=0 && ($22-$5)<=10) || (($5-$22)>=0 && ($5-$22)<=10))){print}}' ${starres}/${fileName}_R1J_R2J > ${starres}/${fileName}_R1J_R2J_filter
-#obtain the first loci of R1 and R2.
-#the file format: R1J,R2J,R1_part1,R1_part2,R2_part1,R2_part2
+	#obtain the first loci of R1 and R2.
+	#the file format: R1J,R2J,R1_part1,R1_part2,R2_part1,R2_part2
 	awk 'BEGIN{FS=OFS="\t"}NR==FNR{str1=$1"\t"$2"\t"$3"\t"$6"\t"$8"\t"$9"\t"$10"\t"$13;str2=$8"\t"$9"\t"$10"\t"$13"\t"$1"\t"$2"\t"$3"\t"$6;if($6=="+" && $13=="+"){A[$1$3+1$4$8$9]=str1;A[$8$10+1$4$1$2]=str2}else if($6=="+" && $13=="-"){A[$1$3+1$4$8$10+1]=str1;A[$8$9$4$1$2]=str2}else if($6=="-" && $13=="+"){A[$1$2$4$8$9]=str1;A[$8$10+1$4$1$3+1]=str2}else if($6=="-" && $13=="-"){A[$1$2$4$8$10+1]=str1;A[$8$9$4$1$3+1]=str2}}NR>FNR{if(A[$1$2$10$4$5]!=""){print $0,A[$1$2$10$4$5]}}' ${starres}/${fileName}_read1.chimOut_pair.bed ${starres}/${fileName}_R1J_R2J_filter | awk 'BEGIN{FS=OFS="\t"}NR==FNR{str1=$1"\t"$2"\t"$3"\t"$6"\t"$8"\t"$9"\t"$10"\t"$13;str2=$8"\t"$9"\t"$10"\t"$13"\t"$1"\t"$2"\t"$3"\t"$6;if($6=="+" && $13=="+"){A[$1$3+1$4$8$9]=str1;A[$8$10+1$4$1$2]=str2}else if($6=="+" && $13=="-"){A[$1$3+1$4$8$10+1]=str1;A[$8$9$4$1$2]=str2}else if($6=="-" && $13=="+"){A[$1$2$4$8$9]=str1;A[$8$10+1$4$1$3+1]=str2}else if($6=="-" && $13=="-"){A[$1$2$4$8$10+1]=str1;A[$8$9$4$1$3+1]=str2}}NR>FNR{if(A[$21$22$30$24$25]!=""){print $0,A[$21$22$30$24$25]}}' ${starres}/${fileName}_read2.chimOut_pair.bed - > ${starres}/${fileName}_R1J_R2J_filter_addPair
 	####obtain each read the best chimeric pair score
 	awk 'BEGIN{FS=OFS="\t"}{print ($18/$16)+($38/$36),$0}' ${starres}/${fileName}_R1J_R2J_filter_addPair >temp.txt
