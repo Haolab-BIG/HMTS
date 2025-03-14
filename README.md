@@ -220,7 +220,7 @@ done
 The output (*_allBaitTransReads_1bp) has eight columns:
 
 ```
-bait_chr  bait_start  bait_end  bait_strand  Translocation_chr  Translocation_start  Translocation_end  Translocation_strand  read_name
+Bait_chr  Bait_start  Bait_end  Bait_strand  Translocation_chr  Translocation_start  Translocation_end  Translocation_strand  read_name
 ```
 
 
