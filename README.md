@@ -24,6 +24,14 @@ As illustrated in the figure, \
 
 Here we obtained all bait and translocation pairs.
 
+### iii. Conda Environment
+
+You can configure a Conda environment named 'HMTS' using the following code, which includes the essential software for HMTS data analysis. 
+
+```
+conda create -n HMTS fastqc Trimmomatic star samtools cutadapt bedtools
+```
+
 ## Part II Codes for Analysis
 
 ### i. Raw Data Quality Check and Trimming
@@ -207,5 +215,12 @@ for fileName in samplename1 samplename2;do   ## Replace with the prefix of the t
 done
 ```
 
+## Part III Output
+
+The output (*_allBaitTransReads_1bp) has eight columns:
+
+```
+bait_chr  bait_start  bait_end  bait_strand  Translocation_chr  Translocation_start  Translocation_end  Translocation_strand  read_name
+```
 
 
